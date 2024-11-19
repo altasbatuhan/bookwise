@@ -1,0 +1,17 @@
+# Log dosyalarını hariç tut
+*.log
+
+# Git dosyalarını hariç tut
+.git
+
+# node_modules dizinini hariç tut (uygulamanın içinde büyük olabilir)
+node_modules
+
+# Geçici dosyalar ve derleme çıktıları
+*.tmp
+*.bak
+dist/
+
+# Dockerfile ve .dockerignore dosyasını hariç tut
+Dockerfile
+.dockerignore

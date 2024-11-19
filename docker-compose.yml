@@ -1,8 +1,8 @@
 version: "3.8"
 services:
   db:
-    image: altasbatuhan/bookwise-db:latest
-    container_name: project-db-1
+    image: altasbatuhan/bookwise-db:v1.0
+    container_name: project-db-2
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 12345
@@ -15,8 +15,8 @@ services:
       - backend_network
 
   backend:
-    image: altasbatuhan/bookwise-backend:latest
-    container_name: bookwise-backend-1
+    image: altasbatuhan/bookwise-backend:v1.0
+    container_name: bookwise-backend-2
     environment:
       DATABASE_URL: postgresql://postgres:12345@db:5432/bookwise
     ports:
@@ -27,8 +27,8 @@ services:
       - backend_network
 
   frontend:
-    image: altasbatuhan/bookwise-frontend:latest
-    container_name: bookwise-frontend-1
+    image: altasbatuhan/bookwise-frontend:v1.0
+    container_name: bookwise-frontend-2
     ports:
       - "3000:80"
     networks:

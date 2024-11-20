@@ -1,42 +1,32 @@
 import React, { useEffect, useState } from "react";
 import BookCard from "../components/BookCard";
 import Navbar from "../components/Navbar";
+import apiService from "../services/apiService"; // Import the apiService
 
 function LikedBooksPage() {
-  const [books, setBooks] = useState([]); // State to store liked books
+  const [books, setBooks] = useState([]);
   const [userId] = useState(
-    JSON.parse(sessionStorage.getItem("user"))?.user_id // Get user ID from session storage
+    JSON.parse(sessionStorage.getItem("user"))?.user_id
   );
-  const [loading, setLoading] = useState(true); // State to manage loading state
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch liked books when the component mounts or userId changes
     const fetchLikedBooks = async () => {
       if (userId) {
-        // Only fetch if userId is available
         try {
-          const likedBooksResponse = await fetch(
-            `http://localhost:5000/books/liked/${userId}` // API endpoint for liked books
-          );
-          if (likedBooksResponse.ok) {
-            const likedBooksData = await likedBooksResponse.json(); // Parse response as JSON
-            setBooks(likedBooksData.liked_books); // Update state with liked books
-          } else {
-            console.error(
-              "Error getting liked books:",
-              likedBooksResponse.status // Log error status
-            );
-          }
+          // Use apiService to fetch liked books
+          const likedBooksData = await apiService.getLikedBooks(userId);
+          setBooks(likedBooksData.liked_books);
         } catch (error) {
-          console.error("Error getting liked books:", error); // Log error
+          console.error("Error getting liked books:", error);
         } finally {
-          setLoading(false); // Set loading to false regardless of success or failure
+          setLoading(false);
         }
       }
     };
 
-    fetchLikedBooks(); // Call the function to fetch liked books
-  }, [userId]); // Dependency array ensures the effect runs when userId changes
+    fetchLikedBooks();
+  }, [userId]);
 
   const updateLikedBooks = (isbn13, liked) => {
     // Function to update the liked books state

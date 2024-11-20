@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import { showToast } from "../toastConfig";
+import apiService from "../services/apiService"; // Import the apiService
 
 function SettingsPage() {
   const [editing, setEditing] = useState(null);
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState(""); // Yeni eklenen state
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -17,7 +18,6 @@ function SettingsPage() {
   const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
-    // Sayfa yüklendiğinde formu gizle
     setShowForm(false);
   }, []);
 
@@ -41,57 +41,39 @@ function SettingsPage() {
     }
 
     try {
-      const response = await fetch(
-        `http://localhost:5000/update-user/${user.user_id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            current_password: currentPassword,
-            old_password: oldPassword,
-            new_password: newPassword,
-            username: username,
-            email: email,
-            confirmPassword: confirmPassword, // Yeni eklenen state
-          }),
-        }
-      );
+      // Prepare the updated data object
+      const updatedData = {
+        current_password: currentPassword,
+        username: username,
+        email: email,
+      };
 
-      console.log("API response:", response);
-
-      if (response.ok) {
-        const data = await response.json();
-
-        // Update user data in session storage
-        setUser(data.user);
-        sessionStorage.setItem("user", JSON.stringify(data.user));
-
-        showToast("success", data.message);
-
-        // Clear the form fields after successful update
-        setEditing(null);
-        setOldPassword("");
-        setNewPassword("");
-        setConfirmPassword(""); // Şifre onay alanını temizle
-        setCurrentPassword("");
-        setUsername("");
-        setEmail("");
-        setShowForm(false); // Hide the form after successful update
-      } else {
-        const errorData = await response.json();
-        console.error("Update error:", errorData);
-
-        showToast(
-          "error",
-          errorData.error || "An error occurred while updating."
-        );
+      if (editing === "password") {
+        updatedData.old_password = oldPassword;
+        updatedData.new_password = newPassword;
       }
+
+      // Use apiService to update user data
+      const data = await apiService.updateUser(user.user_id, updatedData);
+
+      // Update user data in session storage
+      setUser(data.user);
+      sessionStorage.setItem("user", JSON.stringify(data.user));
+
+      showToast("success", data.message);
+
+      // Clear the form fields after successful update
+      setEditing(null);
+      setOldPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      setCurrentPassword("");
+      setUsername("");
+      setEmail("");
+      setShowForm(false); // Hide the form after successful update
     } catch (error) {
       console.error("Update error:", error);
-
-      showToast("error", "An error occurred while updating.");
+      showToast("error", error.message || "An error occurred while updating.");
     }
   };
 
@@ -100,40 +82,25 @@ function SettingsPage() {
 
     if (!currentPassword || currentPassword !== confirmPassword) {
       showToast("error", "Please enter your password and confirm it.");
-
       return;
     }
 
     try {
-      const response = await fetch(
-        `http://localhost:5000/delete-user/${user.user_id}`,
-        {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ password: currentPassword }), // currentPassword'ü gönderiyoruz
-        }
-      );
+      // Use apiService to delete the user account
+      await apiService.deleteUser(user.user_id, currentPassword);
 
-      if (response.ok) {
-        showToast(
-          "success",
-          "Your account has been successfully deleted. Redirecting to login..."
-        );
-        sessionStorage.removeItem("user");
-        setTimeout(() => {
-          window.location.href = "/auth";
-        }, 3000);
-      } else {
-        const errorData = await response.json();
-        showToast("error", errorData.error || "Account deletion failed.");
-      }
+      showToast(
+        "success",
+        "Your account has been successfully deleted. Redirecting to login..."
+      );
+      sessionStorage.removeItem("user");
+      setTimeout(() => {
+        window.location.href = "/auth";
+      }, 3000);
     } catch (error) {
-      showToast("error", "An error occurred.");
+      showToast("error", error.message || "An error occurred.");
     }
   };
-
   return (
     <div>
       <Navbar />

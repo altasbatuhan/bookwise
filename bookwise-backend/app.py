@@ -616,7 +616,7 @@ def review_book(userId):
         except Exception as e:
             print("An error occurred while fetching books and reviews for user:", e)
             return jsonify({"error": "An error occurred while fetching books and reviews", "message": str(e)}), 500
-    
+
     elif request.method == 'POST':
         try:
             data = request.get_json()
@@ -634,15 +634,18 @@ def review_book(userId):
                 INSERT INTO book_reviews (user_id, isbn13, rating)
                 VALUES (%s, %s, %s)
                 ON CONFLICT (user_id, isbn13) 
-                DO UPDATE SET rating = EXCLUDED.rating;
+                DO UPDATE SET rating = EXCLUDED.rating
+                RETURNING (SELECT CASE WHEN xmax = 0 THEN 1 ELSE 0 END FROM books WHERE isbn13 = EXCLUDED.isbn13);
             """, (userId, isbn13, rating))
 
-            # Update the ratings count in the books table
-            cursor.execute("""
-                UPDATE books 
-                SET ratings_count = ratings_count + 1
-                WHERE isbn13 = %s;
-            """, (isbn13,))
+            is_new_row = cursor.fetchone()[0]
+
+            if is_new_row:
+                cursor.execute("""
+                    UPDATE books 
+                    SET ratings_count = ratings_count + 1
+                    WHERE isbn13 = %s;
+                """, (isbn13,))
 
             connection.commit()
 
@@ -745,4 +748,4 @@ def get_all_categories():
         print("An error occurred while fetching categories:", e)
         return jsonify({"error": "An error occurred", "message": str(e)}), 500
 if __name__ == "__main__":
-    app.run(debug=False, host="0.0.0.0", port=5000)
+    app.run(debug=False, host="0.0.0.0", port=5005)

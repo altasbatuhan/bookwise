@@ -1,11 +1,11 @@
-# 1. Aşama: Uygulamanızı derleyin
-FROM node:16-slim AS build
+FROM node:18-slim AS build
 
 WORKDIR /app
 
 
 COPY package*.json ./
-RUN npm install --production  
+RUN npm install --omit=dev
+
 
 
 COPY . .
@@ -14,7 +14,7 @@ COPY . .
 RUN npm run build
 
 
-FROM node:16-slim
+FROM node:18-slim
 
 WORKDIR /app
 

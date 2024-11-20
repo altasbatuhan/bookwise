@@ -4,6 +4,7 @@ import StarRating from "../components/AverageRatings";
 import Navbar from "../components/Navbar";
 import LikeButton from "../components/LikeButton";
 import RatingStars from "../components/RatingStars";
+import apiService from "../services/apiService"; // Import the apiService
 
 function DetailsPage() {
   const { isbn13 } = useParams();
@@ -18,29 +19,16 @@ function DetailsPage() {
       try {
         const userId = JSON.parse(sessionStorage.getItem("user"))?.user_id;
 
-        const detailsResponse = await fetch(
-          `http://localhost:5000/book/${isbn13}`
-        );
-        const reviewResponse = await fetch(
-          `http://localhost:5000/books/review/user/${userId}`
-        );
+        // Use apiService to fetch book details
+        const detailsData = await apiService.getBookByIsbn(isbn13);
+        setBook(detailsData);
 
-        if (detailsResponse.ok) {
-          const detailsData = await detailsResponse.json();
-          setBook(detailsData);
-        } else {
-          throw new Error(`HTTP error! status: ${detailsResponse.status}`);
-        }
-
-        if (reviewResponse.ok) {
-          const reviewData = await reviewResponse.json();
-          const userReview = reviewData.reviews.find(
-            (review) => review.isbn13 === isbn13
-          );
-          setUserRating(userReview ? userReview.user_rating : 0);
-        } else {
-          setUserRating(0);
-        }
+        // Use apiService to fetch user reviews
+        const reviewData = await apiService.getUserReviews(userId);
+        const userReview = reviewData.reviews.find(
+          (review) => review.isbn13 === isbn13
+        );
+        setUserRating(userReview ? userReview.user_rating : 0);
       } catch (e) {
         console.error("Error fetching book:", e);
         setError(e);
@@ -57,20 +45,9 @@ function DetailsPage() {
       try {
         const userId = JSON.parse(sessionStorage.getItem("user"))?.user_id;
         if (userId) {
-          const likedBooksResponse = await fetch(
-            `http://localhost:5000/books/liked/${userId}`
-          );
-          if (likedBooksResponse.ok) {
-            const likedBooksData = await likedBooksResponse.json();
-            setLikedBooks(
-              likedBooksData.liked_books.map((book) => book.isbn13)
-            );
-          } else {
-            console.error(
-              "Error getting liked books:",
-              likedBooksResponse.status
-            );
-          }
+          // Use apiService to fetch liked books
+          const likedBooksData = await apiService.getLikedBooks(userId);
+          setLikedBooks(likedBooksData.liked_books.map((book) => book.isbn13));
         }
       } catch (error) {
         console.error("Error getting user data:", error);
@@ -84,32 +61,15 @@ function DetailsPage() {
     try {
       const userId = JSON.parse(sessionStorage.getItem("user"))?.user_id;
 
-      const response = await fetch(
-        `http://localhost:5000/books/review/user/${userId}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ isbn13, rating: newRating }),
-        }
-      );
+      // Use apiService to post the book review
+      await apiService.postBookReview(userId, isbn13, newRating);
 
-      if (response.ok) {
-        const reviewData = await response.json();
-
-        if (reviewData.reviews && reviewData.reviews.length > 0) {
-          const updatedUserRating = reviewData.reviews[0].user_rating;
-          setUserRating(updatedUserRating);
-        } else {
-          console.error(
-            "The reviews array is empty or undefined in the API response:",
-            reviewData
-          );
-        }
-      } else {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      // Update the user rating state after successful rating
+      const reviewData = await apiService.getUserReviews(userId);
+      const updatedUserRating = reviewData.reviews.find(
+        (review) => review.isbn13 === isbn13
+      )?.user_rating;
+      setUserRating(updatedUserRating || 0);
     } catch (error) {
       console.error("An error occurred while rating the book:", error);
     }

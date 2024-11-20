@@ -4,10 +4,9 @@ import Navbar from "../components/Navbar";
 import PaginationButtons from "../components/PaginationButtons";
 import CategoryFilter from "../components/CategoryFilter";
 import AiPoweredSwitch from "../components/AiPoweredSwitch";
+import apiService from "../services/apiService"; // Import the apiService
 
 function HomePage() {
-  // State variables to manage books, pagination, loading state, categories,
-  // selected category, user ID, liked books, AI suggestions, and AI power state.
   const [books, setBooks] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -20,27 +19,14 @@ function HomePage() {
   const [aiSuggestions, setAiSuggestions] = useState([]);
   const [aiPowered, setAiPowered] = useState(false);
 
-  // Number of books to display per page
   const booksPerPage = 16;
 
-  // useEffect hook to fetch user data (liked books) when the component mounts
-  // or when the selectedCategory or userId changes.
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const likedBooksResponse = await fetch(
-          `http://localhost:5000/books/liked/${userId}`
-        );
-
-        if (likedBooksResponse.ok) {
-          const likedBooksData = await likedBooksResponse.json();
-          setLikedBooks(likedBooksData.liked_books.map((book) => book.isbn13));
-        } else {
-          console.error(
-            "Error fetching liked books:",
-            likedBooksResponse.status
-          );
-        }
+        // Use apiService to fetch liked books
+        const likedBooksData = await apiService.getLikedBooks(userId);
+        setLikedBooks(likedBooksData.liked_books.map((book) => book.isbn13));
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
@@ -49,58 +35,42 @@ function HomePage() {
     fetchUserData();
   }, [selectedCategory, userId]);
 
-  // useEffect hook to fetch categories when the component mounts.
   useEffect(() => {
-    fetch("http://localhost:5000/categories/with-book-count")
-      .then((response) => response.json())
-      .then((data) => {
-        setCategories(data);
-      })
-      .catch((error) => console.error("Error fetching categories:", error));
+    // Use apiService to fetch categories with book count
+    const fetchCategories = async () => {
+      try {
+        const categoriesData = await apiService.getCategoriesWithBookCount();
+        setCategories(categoriesData);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+
+    fetchCategories();
   }, []);
 
-  // useEffect hook to fetch books or AI suggestions when the page,
-  // selectedCategory, or aiPowered state changes.
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      const categoryQuery = selectedCategory
-        ? `&category=${selectedCategory}`
-        : "";
       try {
-        let response;
         if (aiPowered && selectedCategory) {
-          // Fetch AI suggestions if AI is powered and a category is selected
-          response = await fetch(
-            `http://localhost:5000/api/ai-suggestions?category=${selectedCategory}`
+          // Use apiService to fetch AI suggestions
+          const suggestions = await apiService.getAISuggestions(
+            selectedCategory
           );
-          const data = await response.json();
-          // Format the data to be compatible with the BookCard component
-          const formattedData = data.map((item) => ({
-            ...item,
-            title: item.title || "",
-            authors: item.authors || [],
-            categories: item.categories || [],
-            thumbnail: item.thumbnail || "",
-            description: item.description || "",
-            published_year: item.published_year || 2023,
-            average_rating: item.average_rating || 0,
-            num_pages: item.num_pages || 300,
-            ratings_count: item.ratings_count || 0,
-          }));
-          setAiSuggestions(formattedData);
+          setAiSuggestions(suggestions); // No need for formatting, apiService already returns the correct format
         } else if (selectedCategory) {
-          // Fetch books for the selected category
-          response = await fetch(
-            `http://localhost:5000/books?page=${page}&limit=${booksPerPage}${categoryQuery}`
+          // Use apiService to fetch books with category filter
+          const booksData = await apiService.getBooks(
+            page,
+            booksPerPage,
+            selectedCategory
           );
-          setBooks(await response.json());
+          setBooks(booksData);
         } else {
-          // Fetch all books if no category is selected
-          response = await fetch(
-            `http://localhost:5000/books?page=${page}&limit=${booksPerPage}`
-          );
-          setBooks(await response.json());
+          // Use apiService to fetch all books
+          const booksData = await apiService.getBooks(page, booksPerPage);
+          setBooks(booksData);
         }
       } catch (error) {
         console.error("Error fetching data:", error);

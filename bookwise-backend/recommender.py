@@ -68,7 +68,7 @@ class BookRecommender:
     def create_feature_matrix(self):
         """Create TF-IDF matrix from text features."""
         tfidf = TfidfVectorizer(stop_words='english', 
-                               max_features=5000,
+                               max_features=5005,
                                ngram_range=(1, 2))
         
         # Create text feature matrix

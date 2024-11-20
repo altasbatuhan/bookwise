@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { showToast } from "../toastConfig";
+import apiService from "../services/apiService";
 
 function Auth() {
   // Initialize useNavigate for navigation
@@ -16,32 +17,22 @@ function Auth() {
   const handleLogin = async (event) => {
     event.preventDefault(); // Prevent default form submission behavior
     try {
-      // Send a POST request to the login endpoint
-      const response = await fetch("http://localhost:5000/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username, password }),
-      });
+      // Send login request using apiService
+      const data = await apiService.login({ username, password });
 
-      // Check if the login was successful
-      if (response.ok && response.status >= 200 && response.status < 300) {
-        const data = await response.json(); // Parse the response as JSON
+      // If login is successful
+      if (data?.user) {
         console.log("Login response:", data); // Log the response data
-        // Store user information in session storage and navigate to the home page
-        sessionStorage.setItem("user", JSON.stringify(data.user));
-        showToast("success", "Login successful!"); // Display a success message
-        navigate("/");
+        sessionStorage.setItem("user", JSON.stringify(data.user)); // Save user information to session storage
+        showToast("success", "Login successful!");
+        navigate("/"); // Redirect to homepage
       } else {
-        const errorData = await response.json(); // Parse the error response as JSON
-        console.error("Login error:", errorData); // Log the error data
-        // alert(errorData.error); // Display the error message to the user
-        showToast("error", errorData.error); // Display the error message to the user
+        console.log("Login failed:", data); // Log the error message to console
+        showToast("error", data?.error || "Login failed."); // Display error message
       }
     } catch (error) {
-      console.error("Login error:", error); // Log any error that occurred
-      showToast("error", "An error occurred."); // Display a generic error message to the user
+      console.error("Login error:", error); // Log the error message to console
+      showToast("error", error.message || "An error occurred."); // Display error message
     }
   };
 
@@ -49,26 +40,19 @@ function Auth() {
   const handleRegister = async (event) => {
     event.preventDefault(); // Prevent default form submission behavior
     try {
-      // Send a POST request to the register endpoint
-      const response = await fetch("http://localhost:5000/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username, email, password }),
-      });
+      //  Register using apiService
+      const data = await apiService.register({ username, email, password });
 
-      // Check if the registration was successful
-      if (response.ok) {
-        showToast("success", "Registration successful! Please log in."); // Display a success message
-        setIsLogin(true); // Switch to the login form
-      } else {
-        const errorData = await response.json(); // Parse the error response as JSON
-        showToast("error", errorData.error); // Display the error message to the user
+      console.log("Registration response:", data); // Log the response to console
+
+      // If there is a user object in the data, registration is successful
+      if (data?.message) {
+        showToast("success", data.message); // Show success message
+        setIsLogin(true); // Switch to login form
       }
     } catch (error) {
-      console.error("Register error:", error); // Log any error that occurred
-      showToast("error", "An error occurred."); // Display a generic error message to the user
+      console.error("Register error:", error);
+      showToast("error", error.message || "An error occurred.");
     }
   };
 

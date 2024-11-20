@@ -33,12 +33,9 @@ function BookCard({ book, userId, likedBooks, onUpdateLikedBooks }) {
         {/* Display the book's title */}
       </Link>
       <p className="text-gray-400">
-        {
-          // `book.authors` bir dizi ise, diziyi virgülle birleştir, sonra `replaceAll` ile semicolon'ları virgülle değiştir
-          Array.isArray(book.authors)
-            ? book.authors.join(", ").replaceAll(";", ", ")
-            : (book.authors || "").replaceAll(";", ", ") // Eğer `book.authors` null ya da undefined ise, boş bir string kullan
-        }
+        {Array.isArray(book.authors)
+          ? book.authors.join(", ").replaceAll(";", ", ")
+          : (book.authors || "").replaceAll(";", ", ")}
       </p>
       {/* Display the book's authors */}
       <p className="mt-2 text-gray-300 line-clamp-3">{book.description}</p>

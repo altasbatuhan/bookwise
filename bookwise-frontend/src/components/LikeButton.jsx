@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
+import apiService from "../services/apiService"; // Import the API service
 import { showToast } from "../toastConfig";
 
 function LikeButton({ isbn13, likedBooks, onUpdateLikedBooks }) {
-  // Accepts book ISBN, liked books array, and a function to update liked books
   const [liked, setLiked] = useState(false); // Initialize state for like status
 
   useEffect(() => {
@@ -14,34 +14,31 @@ function LikeButton({ isbn13, likedBooks, onUpdateLikedBooks }) {
     // Function to handle like/unlike action
     try {
       const userId = JSON.parse(sessionStorage.getItem("user"))?.user_id; // Get user ID from session storage
-      const response = await fetch(
-        `http://localhost:5000/books/liked/${userId}`, // API endpoint for liking/unliking books
-        {
-          method: liked ? "DELETE" : "POST", // Use DELETE to unlike, POST to like
-          headers: {
-            "Content-Type": "application/json", // Set content type for the request
-          },
-          body: JSON.stringify({ isbn13: isbn13 }), // Send the ISBN in the request body
-        }
-      );
 
-      if (response.ok) {
+      let response;
+      if (liked) {
+        // If the book is already liked, unlike it
+        response = await apiService.deleteLike(userId, isbn13);
+      } else {
+        // If the book is not liked, like it
+        response = await apiService.likeBook(userId, isbn13);
+      }
+
+      if (response?.message) {
         setLiked(!liked); // Toggle the liked state
-        const message = liked
-          ? "Book unliked!" // Message for unliking
-          : "Book liked!"; // Message for liking
-        // alert(message); // Show an alert message (commented out)
-        showToast("success", message); // Call the onUpdateLikedBooks function to update the parent component
+        const message = liked ? "Book unliked!" : "Book liked!"; // Success message
+        showToast("success", message); // Show success toast
+
         if (onUpdateLikedBooks) {
-          onUpdateLikedBooks(isbn13, !liked);
+          onUpdateLikedBooks(isbn13, !liked); // Callback to update likedBooks in the parent
         }
       } else {
-        console.error("Error during the operation:", response.status); // Log the error
-        alert("An error occurred."); // Show an error alert
+        console.error("Error during the operation:", response); // Log the error
+        showToast("error", "An error occurred.");
       }
     } catch (error) {
       console.error("Error during the operation:", error); // Log the error
-      alert("An error occurred."); // Show an error alert
+      showToast("error", "An error occurred.");
     }
   };
 
@@ -67,7 +64,7 @@ function LikeButton({ isbn13, likedBooks, onUpdateLikedBooks }) {
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
-          fil="black"
+          fill="black"
           stroke="currentColor"
           className="w-6 h-6" // Empty heart icon
         >

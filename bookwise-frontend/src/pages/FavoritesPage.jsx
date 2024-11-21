@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import BookCard from "../components/BookCard";
 import Navbar from "../components/Navbar";
-import apiService from "../services/apiService"; // Import the apiService
+import apiService from "../services/apiService";
 
 function LikedBooksPage() {
   const [books, setBooks] = useState([]);

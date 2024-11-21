@@ -1,10 +1,9 @@
-// src/components/BookCard.jsx
 import React from "react";
 import { Link } from "react-router-dom";
-import LikeButton from "./LikeButton"; // Import the LikeButton component
+import LikeButton from "./LikeButton";
 
-function BookCard({ book, userId, likedBooks, onUpdateLikedBooks }) {
-  // Accepts book data, user ID, liked books array, and a function to update liked books
+function BookCard({ book, likedBooks, onUpdateLikedBooks }) {
+  // Accepts book data, liked books array, and a function to update liked books
   return (
     <div className="bg-bookwise-gray p-2 rounded-lg shadow-lg lg:max-w-[13rem] max-lg:w-full max-lg:mx-5 w-full relative opacity-90 hover:opacity-100">
       {/* Container for the book card with styling */}
@@ -44,4 +43,4 @@ function BookCard({ book, userId, likedBooks, onUpdateLikedBooks }) {
   );
 }
 
-export default BookCard; // Export the component for use in other parts of the application
+export default BookCard;

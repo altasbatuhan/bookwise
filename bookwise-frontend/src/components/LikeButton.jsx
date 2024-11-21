@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import apiService from "../services/apiService"; // Import the API service
+import apiService from "../services/apiService";
 import { showToast } from "../toastConfig";
 
 function LikeButton({ isbn13, likedBooks, onUpdateLikedBooks }) {
@@ -81,4 +81,4 @@ function LikeButton({ isbn13, likedBooks, onUpdateLikedBooks }) {
   );
 }
 
-export default LikeButton; // Export the component
+export default LikeButton;

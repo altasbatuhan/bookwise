@@ -1,7 +1,5 @@
-// utils/toastHelper.js
 import { toast } from "react-toastify";
 
-// Toast mesajını gönderen fonksiyon
 export const showToast = (type, message) => {
   const options = {
     position: "bottom-right",
@@ -14,7 +12,6 @@ export const showToast = (type, message) => {
     theme: "dark",
   };
 
-  // Mesaj türüne göre toast tipini belirle
   switch (type) {
     case "success":
       toast.success(message, options);

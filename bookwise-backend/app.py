@@ -3,7 +3,7 @@ from flask_cors import CORS
 import os
 import psycopg2
 from dotenv import load_dotenv
-from recommender import BookRecommender, get_data_from_postgresql, recommendations
+from recommender import BookRecommender, get_data_from_postgresql
 import recommender
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps  
@@ -14,6 +14,10 @@ CORS(app, supports_credentials=True)
 load_dotenv()
 app.config['DEBUG'] = True
 app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
+# Initialize and fit the recommender
+df = get_data_from_postgresql()
+recommender = BookRecommender()  # Globally defined recommender object
+recommender.fit(df)
 
 # Decorator for database connection
 
@@ -162,7 +166,7 @@ def logout(cursor):
         return jsonify({'message': 'Logout successful'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-df = get_data_from_postgresql()
+
 
 @app.route('/delete-user/<int:user_id>', methods=['DELETE'])
 @db_operation
@@ -303,14 +307,8 @@ def update_user(cursor, user_id):
         return jsonify({'error': str(e)}), 500
 
 
-
-
-# Initialize and fit the recommender
-recommender = BookRecommender()  # Globally defined recommender object
-recommender.fit(df)
-
-@app.route('/api/ai-suggestions', methods=['GET'])
-def ai_suggestions():
+@app.route('/api/ai-suggestions/<int:user_id>', methods=['GET'])
+def ai_suggestions(user_id):
     """
     Endpoint for receiving AI-powered book recommendations.
 
@@ -320,11 +318,16 @@ def ai_suggestions():
     Return Value:
         json: List of recommended books.
     """
-    try:
-        category = request.args.get('category', '')
 
+    print(user_id)
+    
+
+    try:
+        
+        category = request.args.get('category', '')
+        print(category)
         # Get the recommendations
-        recommendations = recommender.recommend_books('user1', category)
+        recommendations = recommender.recommend_books(user_id, category)
 
         # Convert DataFrame to JSON format
         recommendations_list = recommendations.to_dict('records')
@@ -335,22 +338,6 @@ def ai_suggestions():
         print("An error occurred while getting AI suggestions:", e)
         return jsonify({"error": "An error occurred", "message": str(e)}), 500
 
-@app.route('/books/recommendations', methods=['GET'])
-def get_recommendations():
-    recommendation_list = [{
-        "isbn13": row['isbn13'],
-        "title": row['title'],
-        "authors": row['authors'],
-        "categories": row['categories'],
-        "thumbnail": row['thumbnail'],
-        "description": row['description'],
-        "average_rating": row["average_rating"],
-        "similarity_score": row['similarity_score'],
-        "recommendation_basis": row['recommendation_basis']
-    } for index, row in recommendations.iterrows()]
-
-    print(recommendations.head())
-    return jsonify(recommendation_list)
 
 @app.route('/book/<isbn13>', methods=['GET'])
 def get_book_by_isbn(isbn13):
@@ -635,7 +622,8 @@ def review_book(userId):
                 VALUES (%s, %s, %s)
                 ON CONFLICT (user_id, isbn13) 
                 DO UPDATE SET rating = EXCLUDED.rating
-                RETURNING (SELECT CASE WHEN xmax = 0 THEN 1 ELSE 0 END FROM books WHERE isbn13 = EXCLUDED.isbn13);
+                RETURNING user_id, isbn13, 
+                        CASE WHEN xmax = 0 THEN 1 ELSE 0 END AS is_new_review;
             """, (userId, isbn13, rating))
 
             is_new_row = cursor.fetchone()[0]
@@ -748,4 +736,4 @@ def get_all_categories():
         print("An error occurred while fetching categories:", e)
         return jsonify({"error": "An error occurred", "message": str(e)}), 500
 if __name__ == "__main__":
-    app.run(debug=False, host="0.0.0.0", port=5005)
+    app.run(debug=True, host="0.0.0.0", port=5005)

@@ -4,7 +4,7 @@ import Navbar from "../components/Navbar";
 import PaginationButtons from "../components/PaginationButtons";
 import CategoryFilter from "../components/CategoryFilter";
 import AiPoweredSwitch from "../components/AiPoweredSwitch";
-import apiService from "../services/apiService"; // Import the apiService
+import apiService from "../services/apiService";
 
 function HomePage() {
   const [books, setBooks] = useState([]);
@@ -56,6 +56,7 @@ function HomePage() {
         if (aiPowered && selectedCategory) {
           // Use apiService to fetch AI suggestions
           const suggestions = await apiService.getAISuggestions(
+            userId,
             selectedCategory
           );
           setAiSuggestions(suggestions); // No need for formatting, apiService already returns the correct format
@@ -80,7 +81,7 @@ function HomePage() {
     };
 
     fetchData();
-  }, [page, selectedCategory, aiPowered]);
+  }, [page, selectedCategory, userId, aiPowered]);
 
   // useEffect hook to reset the page to 1 when the selectedCategory changes.
   useEffect(() => {

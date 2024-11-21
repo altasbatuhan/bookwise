@@ -185,13 +185,7 @@ df = get_data_from_postgresql()
 recommender = BookRecommender()
 recommender.fit(df)
 
-# See what categories are available
-#print("Available categories:", recommender.get_available_categories())
 
-# Add some user ratings
-recommender.add_user_rating('user1', '9780006482079', 5)  # Example ISBN
-recommender.add_user_rating('user1', '9780006178736', 4)  # Example ISBN
-
-# Get recommendations for a user in a specific category
-recommendations = recommender.recommend_books('user1', 'Capitalism')
-print(recommendations)
+# # Get recommendations for a user in a specific category
+# 
+# print(recommendations)

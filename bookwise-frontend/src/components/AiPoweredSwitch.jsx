@@ -6,9 +6,8 @@ import { showToast } from "../toastConfig";
 function AiPoweredSwitch({ aiPowered, setAiPowered }) {
   // Function to handle changes in the switch state
   const handleChange = (checked) => {
-    setAiPowered(checked); // Update the aiPowered state
+    setAiPowered(checked);
 
-    // Display a toast notification based on the switch state
     if (checked) {
       showToast("success", "AI powered suggestions enabled!");
     } else {
@@ -23,7 +22,7 @@ function AiPoweredSwitch({ aiPowered, setAiPowered }) {
         checked={aiPowered} // Set the initial state of the switch
         onChange={handleChange} // Call handleChange function when the switch state changes
         onColor="#86d3ff" // Color of the switch when it's on
-        onHandleColor="#2693e6" // Color of the handle when the switch is on
+        onHandleColor="#3B82F6" // Color of the handle when the switch is on
         handleDiameter={30} // Diameter of the switch handle
         uncheckedIcon={false} // Hide the default unchecked icon
         checkedIcon={false} // Hide the default checked icon

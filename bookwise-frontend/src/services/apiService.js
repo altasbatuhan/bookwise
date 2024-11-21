@@ -1,3 +1,6 @@
+import { toast } from "react-toastify";
+import qs from "qs";
+
 const API_BASE_URL = "http://localhost:5005";
 
 const apiService = {
@@ -335,10 +338,11 @@ const apiService = {
   },
 
   // Get AI suggestions for a category
-  getAISuggestions: async (category) => {
+  getAISuggestions: async (userId, category) => {
     try {
+      const query = qs.stringify({ category });
       const response = await fetch(
-        `${API_BASE_URL}/api/ai-suggestions?category=${category}`
+        `${API_BASE_URL}/api/ai-suggestions/${userId}?` + query
       );
       const data = await response.json();
 
@@ -349,23 +353,7 @@ const apiService = {
       return data; // List of recommended books
     } catch (error) {
       console.error("Error fetching AI suggestions:", error);
-      throw error; // Rethrow the error to be handled by the calling function
-    }
-  },
-
-  // GET book recommendations (similar books)
-  getRecommendations: async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/books/recommendations`);
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Error fetching book recommendations.");
-      }
-
-      return data; // List of recommended books with additional details
-    } catch (error) {
-      console.error("Error fetching book recommendations:", error);
+      toast.error("Error fetching AI suggestions:", category);
       throw error; // Rethrow the error to be handled by the calling function
     }
   },

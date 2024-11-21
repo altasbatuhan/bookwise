@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import { showToast } from "../toastConfig";
-import apiService from "../services/apiService"; // Import the apiService
+import apiService from "../services/apiService";
 
 function SettingsPage() {
   const [editing, setEditing] = useState(null);

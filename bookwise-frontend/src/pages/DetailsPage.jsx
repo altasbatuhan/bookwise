@@ -4,7 +4,7 @@ import StarRating from "../components/AverageRatings";
 import Navbar from "../components/Navbar";
 import LikeButton from "../components/LikeButton";
 import RatingStars from "../components/RatingStars";
-import apiService from "../services/apiService"; // Import the apiService
+import apiService from "../services/apiService";
 
 function DetailsPage() {
   const { isbn13 } = useParams();

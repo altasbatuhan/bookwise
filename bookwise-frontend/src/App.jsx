@@ -8,54 +8,58 @@ import LikedBooksPage from "./pages/FavoritesPage";
 import SettingsPage from "./pages/SettingsPage";
 import Auth from "./components/Auth";
 import AuthGuard from "./hocs/guard";
+import AuthorPage from "./pages/AuthorPage";
 
 function App() {
   return (
     <BrowserRouter>
-      {" "}
       {/* Set up the router */}
       <Routes>
-        {" "}
         {/* Define the routes */}
         <Route path="/auth" element={<Auth />} />{" "}
         {/* Route for authentication */}
+        {/* Home page route with AuthGuard */}
         <Route
-          path="/" // Route for the home page
+          path="/"
           element={
             <AuthGuard>
-              {" "}
-              {/* Protect the home page with AuthGuard */}
               <HomePage />
             </AuthGuard>
           }
         />
+        {/* Book details page route with AuthGuard */}
         <Route
-          path="/book/:isbn13" // Route for book details
+          path="/book/:isbn13"
           element={
             <AuthGuard>
-              {" "}
-              {/* Protect the book details page with AuthGuard */}
               <DetailsPage />
             </AuthGuard>
           }
         />
+        {/* Liked books page route with AuthGuard */}
         <Route
-          path="/favorites" // Route for liked books
+          path="/favorites"
           element={
             <AuthGuard>
-              {" "}
-              {/* Protect the liked books page with AuthGuard */}
               <LikedBooksPage />
             </AuthGuard>
           }
         />
+        {/* Settings page route with AuthGuard */}
         <Route
-          path="/settings" // Route for settings page
+          path="/settings"
           element={
             <AuthGuard>
-              {" "}
-              {/* Protect the settings page with AuthGuard */}
               <SettingsPage />
+            </AuthGuard>
+          }
+        />
+        {/* New route for author page, showing books by author */}
+        <Route
+          path="/author/:authorName"
+          element={
+            <AuthGuard>
+              <AuthorPage />
             </AuthGuard>
           }
         />

@@ -140,6 +140,30 @@ const apiService = {
       throw error; // Rethrow the error to be handled by the calling function
     }
   },
+
+  // API service function: Get the isbn13 numbers of books by author's name
+  getBooksByAuthor: async (authorName) => {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/books/by-author/${authorName}`
+      );
+
+      // If the response is not successful, throw an error
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "No books found for this author.");
+      }
+
+      // Return the JSON data
+      const data = await response.json();
+
+      // Return the list of ISBN13 numbers for the author's books
+      return data.isbn13_list;
+    } catch (error) {
+      console.error(`Error fetching books by author: ${authorName}`, error);
+      throw error; // Rethrow the error for further handling
+    }
+  },
   // GET book details by ISBN13
   getBookByIsbn: async (isbn13) => {
     try {

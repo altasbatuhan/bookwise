@@ -460,6 +460,38 @@ def get_categories_with_book_count():
         return jsonify({"error": "An error occurred", "message": str(e)}), 500
 
 
+@app.route('/books/by-author/<string:author_name>', methods=['GET'])
+def books_by_author(author_name):
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor()
+
+        # Query to get ISBN13 numbers of books by the author's name
+        cursor.execute("""
+            SELECT b.isbn13
+            FROM books b
+            WHERE b.authors ILIKE %s;  -- Fetch books matching the author's name
+        """, (f"%{author_name}%",))  # Search using the author's name as a parameter
+
+        books = cursor.fetchall()
+
+        if not books:
+            return jsonify({"error": "No books found for this author."}), 404
+
+        # Return the ISBN13 numbers as a list
+        isbn13_list = [book[0] for book in books]
+
+        cursor.close()
+        connection.close()
+
+        return jsonify({"author": author_name, "isbn13_list": isbn13_list})
+
+    except Exception as e:
+        print("An error occurred while fetching books by author:", e)
+        return jsonify({"error": "An error occurred", "message": str(e)}), 500
+
+
+
 @app.route('/books/liked/<int:user_id>', methods=['GET', 'POST', 'DELETE'])
 def liked_books(user_id):
     if request.method == 'GET':
@@ -737,4 +769,4 @@ def get_all_categories():
         return jsonify({"error": "An error occurred", "message": str(e)}), 500
     
 if __name__ == "__main__":
-    app.run(debug=False, host="0.0.0.0", port=5005)
+    app.run(debug=True, host="0.0.0.0", port=5005)

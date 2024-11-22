@@ -14,7 +14,7 @@ services:
       - backend_network
 
   backend:
-    image: altasbatuhan/bookwise-backend:v1.1
+    image: altasbatuhan/bookwise-backend:v1.2
     container_name: bookwise-backend-2
     environment:
       DATABASE_URL: postgresql://postgres:12345@db:5432/bookwise
@@ -26,7 +26,7 @@ services:
       - backend_network
 
   frontend:
-    image: altasbatuhan/bookwise-frontend:v1.1
+    image: altasbatuhan/bookwise-frontend:v1.2
     container_name: bookwise-frontend-2
     ports:
       - "3000:80"

@@ -29,38 +29,37 @@ The application is containerized using Docker.
 
 1. **Clone the repository:**
 
-    ```bash
-    git clone https://github.com/altasbatuhan/bookwise.git
-    cd bookwise
-    ```
+   ```bash
+   git clone https://github.com/altasbatuhan/bookwise.git
+   cd bookwise
+   ```
+
 2. **Start the Services with Docker Compose:**
 
 This project uses Docker Compose to run all services together. To start the database, backend, and frontend services, run the following command:
-   
-   ```bash
-    docker-compose up 
-   ```
+
+```bash
+ docker-compose up
+```
 
 This command will automatically:
 
-  Start the PostgreSQL Database (bookwise-db service).
-  
-  Start the Backend (bookwise-backend service), which will connect to the database.
-  
-  Start the Frontend (bookwise-frontend service), which will interact with the backend.
-  
+Start the PostgreSQL Database (bookwise-db service).
+
+Start the Backend (bookwise-backend service), which will connect to the database.
+
+Start the Frontend (bookwise-frontend service), which will interact with the backend.
+
 ### Access the Application
 
 - **Frontend:** [http://localhost:3000](http://localhost:3000)
-- **Backend:** [http://localhost:5000](http://localhost:5000)
+- **Backend:** [http://localhost:5005](http://localhost:5005)
 - **PostgreSQL Database:** `localhost:5433` with username `postgres` and password `12345`
 
-
   ## Docker Images
+
   You can access the Docker images for the application via [Docker Hub](https://hub.docker.com/).
-        
-   - **Frontend Image:** [altasbatuhan/bookwise-frontend](https://hub.docker.com/r/altasbatuhan/bookwise-frontend)
-   - **Backend Image:** [altasbatuhan/bookwise-backend](https://hub.docker.com/r/altasbatuhan/bookwise-backend)
-  - **Database Image:** [altasbatuhan/bookwise-database](https://hub.docker.com/r/altasbatuhan/bookwise-database)        
 
-
+  - **Frontend Image:** [altasbatuhan/bookwise-frontend](https://hub.docker.com/r/altasbatuhan/bookwise-frontend)
+  - **Backend Image:** [altasbatuhan/bookwise-backend](https://hub.docker.com/r/altasbatuhan/bookwise-backend)
+  - **Database Image:** [altasbatuhan/bookwise-database](https://hub.docker.com/r/altasbatuhan/bookwise-database)
